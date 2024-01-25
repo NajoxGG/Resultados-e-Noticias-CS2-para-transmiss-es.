@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+    body {
+        background-color: green;
+        margin: auto;
+    }
+
+    section {
+        margin: auto;
+    }
+    h2 {
+        font-family: Roboto, sans-serif;
+        font-size: 11pt;
+        margin: 0;
+        text-align: center;
+        color: white;
+    }
+    h1, h3, p {
+        font-family: Roboto, sans-serif;
+        font-size: 11pt;
+        margin: 0;
+        color: white;
+    }
+
+    .animar {
+        opacity: 0;
+        animation: fadeAnimation 3s ease-in-out forwards;
+    }
+
+    @keyframes fadeAnimation {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #conteudo {
+        background: rgb(0,0,0);
+background: linear-gradient(176deg, rgba(0,0,0,0.4430147058823529) 0%, rgba(0,0,0,0.6699054621848739) 100%);
+        height: 30px;
+        width: 900px;
+        text-align: center;
+        overflow: hidden;
+        align-items: center;
+        display: inline-flex;
+        justify-content: left; /* Centraliza o conteúdo horizontalmente */
+        transition: transform 1s ease-in-out; /* Adiciona uma transição suave de 1 segundo */
+    }
+
+    .resultados {
+        display: flex;
+        align-items: center;
+        gap: 1px;
+        width: 1300px;
+        transition: 2s;
+        justify-content: center;
+    }
+
+    .results {
+        width: 8%;
+        height: 10px;
+        font-size: 11pt;
+        font-weight: 800;
+        padding: 5px;
+        background-color: #4289d9;
+        border-radius: 30px;
+        color: white;
+        text-align: center;
+        margin: 10px;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+    }
+
+    .evento {
+        display: inline;
+        text-align: left;
+        margin-left: 10px;
+        padding-left: 5px;
+        font-weight: 500;
+        border-left: solid 5px #4289d9;
+    }
+
+    .team {
+        font-weight: 800;
+        display: inline;
+        align-items: center; /* Alinha os itens verticalmente */
+    }
+
+    .logo {
+        transform: scale(0.7);
+        margin-right: 5px; /* Espaço entre o logo e o nome do time */
+    }
+
+    .map {
+        background-color: #EAF0F9;
+        color: black;
+        border-radius: 10px;
+        margin-left: 5px;
+        padding: 5px;
+        height: 10px;
+        text-align: center;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    .times {
+        margin-left: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: left;
+    }
+    .noticias{
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        width: 1300px;
+        transition: 2s;
+        justify-content: center;
+    }
+</style>
+</head>
+<section>
+    <!-- Div para placares e notícias -->
+    <div id="conteudo" class="animar">
+    </div>
+</section>
+
+<script>
+    // Função para criar elemento de logo
+    function criarElementoLogo(time) {
+        return `<img src="${time.logo}" class="logo" alt="${time.name}" width="50" height="50">`;
+    }
+
+    // Função para obter os resultados da API e atualizar a página
+    async function carregarResultados() {
+        try {
+            // Código para obter e exibir placares
+            const resposta = await fetch('http://localhost:3000/api/results');
+            const dados = await resposta.json();
+
+            // Verifica se a resposta possui a estrutura esperada
+            if (dados && Array.isArray(dados) && dados.length > 0) {
+                // Seleciona uma partida aleatória
+                const partidaAleatoria = dados[Math.floor(Math.random() * dados.length)];
+
+                // Cria um elemento div para exibir as informações do jogo
+                const divJogo = document.createElement('div');
+                divJogo.classList.add('resultados'); // Adiciona a classe 'resultados'
+
+                // Adiciona o logo e o nome do primeiro time
+                divJogo.innerHTML += `<div class="times"><p class="logo">${criarElementoLogo(partidaAleatoria.teams[0])}</p> <p class="team">${partidaAleatoria.teams[0].name}</p>      </div>`;
+                divJogo.innerHTML += `<p class="results">${partidaAleatoria.teams[0].result} x ${partidaAleatoria.teams[1].result}</p>`;
+                divJogo.innerHTML += `<div class="times"><p class="logo">${criarElementoLogo(partidaAleatoria.teams[1])}</p> <p class="team">${partidaAleatoria.teams[1].name}</p>      </div>`;
+                divJogo.innerHTML += `<p class="evento">${partidaAleatoria.event.name}</p>`;
+
+                // Adiciona o jogo à div 'conteudo'
+                const conteudoDiv = document.getElementById('conteudo');
+                conteudoDiv.innerHTML = ''; // Limpa o conteúdo atual
+                conteudoDiv.appendChild(divJogo);
+
+                // Aguarda a transição de 2 segundos e carrega notícias
+                setTimeout(async () => {
+                    // Código para obter e exibir notícias
+                    const respostaNoticias = await fetch('http://localhost:3001/api/noticias');
+                    const dadosNoticias = await respostaNoticias.json();
+
+                    // Verifica se a resposta possui a estrutura esperada
+                    if (dadosNoticias && Array.isArray(dadosNoticias) && dadosNoticias.length > 0) {
+                        // Seleciona uma notícia aleatória
+                        const noticiaAleatoria = dadosNoticias[Math.floor(Math.random() * dadosNoticias.length)];
+
+        
+                        // Cria um elemento div para exibir as informações da notícia
+                        const divNoticia = document.createElement('div');
+                        divNoticia.classList.add('noticias'); // Adiciona a classe 'noticias'
+                        divNoticia.innerHTML += `<img class="logo" width="25"  src="${noticiaAleatoria.pais}" alt="${noticiaAleatoria.pais}">`;
+                        divNoticia.innerHTML += `<h2>${noticiaAleatoria.titulo} | DRAFT</h2>`;
+
+
+                        // Adiciona a notícia à div 'conteudo'
+                        conteudoDiv.innerHTML = ''; // Limpa o conteúdo atual
+                        conteudoDiv.appendChild(divNoticia);
+                    } else {
+                        console.error('A resposta da API de notícias não contém notícias válidas.');
+                    }
+                }, 2000); // 2000 milissegundos = 2 segundos
+            } else {
+                console.error('A resposta da API de placares não contém resultados válidos.');
+            }
+        } catch (erro) {
+            console.error('Erro ao carregar resultados e notícias:', erro);
+        }
+    }
+
+    // Chama a função para carregar resultados e notícias ao carregar a página
+    carregarResultados();
+    // Chama a função para carregar resultados e notícias a cada 10 segundos
+    setInterval(() => {
+        carregarResultados();
+    }, 40000);
+</script>
+</body>
+</html>
